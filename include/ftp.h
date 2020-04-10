@@ -22,8 +22,27 @@
 #include <stdbool.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <sys/time.h>
+#include <sys/types.h>
+
+#define MAX_CLIENT 10
+#define READING 0
+#define WRITING 1
+
+typedef struct server_s {
+
+    int port;
+    char *path;
+    struct sockaddr_in inf;
+    int fd_server;
+    fd_set set[2];
+
+}server_t;
 
 void help();
 void error_handling(int, char**);
+void init_server(server_t*);
+void init_sets(server_t *);
+void start_server(server_t*);
 
 #endif /* !FTP_H_ */

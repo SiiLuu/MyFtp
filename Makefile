@@ -7,6 +7,7 @@
 
 SRC		=	src/main.c 			\
 			src/error.c			\
+			src/server.c		\
 
 OBJ		=	$(SRC:.c=.o)
 
@@ -18,12 +19,14 @@ all:	$(NAME)
 
 $(NAME):	$(OBJ)
 	gcc -o $(NAME) $(OBJ) $(CFLAGS)
+	gcc -o client client.c
 
 clean:
 	rm -rf $(OBJ)
 
 fclean:	clean
 	rm -rf $(NAME)
+	rm -rf client
 
 re:	fclean all
 

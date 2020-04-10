@@ -9,8 +9,13 @@
 
 int main(int ac, char **av)
 {
-    if (strcmp(av[1], "-h") || strcmp(av[1], "-help"))
+    server_t *server = malloc(sizeof(server_t));
+
+    if (!strcmp(av[1], "-h") || !strcmp(av[1], "-help"))
         help();
     error_handling(ac, av);
+    server->port = atoi(av[1]);
+    server->path = av[2];
+    start_server(server);
     return (0);
 }
