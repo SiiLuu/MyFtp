@@ -17,7 +17,7 @@ void init_server(server_t *server)
         exit(84);
     }
     if (setsockopt(server->fd_server, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT,
-        &option, sizeof(option))) {
+        &option, sizeof(int))) {
         perror("Setsockopt");
         exit(84);
     }
@@ -38,26 +38,38 @@ void init_sets(server_t *server)
 	FD_SET(server->fd_server, &server->set[WRITING]);
 }
 
+void new_clients(server_t *server)
+{
+    int fd_client = 0;
+    char *str = malloc(256);
+	socklen_t len_cin = sizeof(server->inf);
+
+    fd_client = accept(server->fd_server, (struct sockaddr*)&server->inf, &len_cin);
+	dprintf(fd_client, "Hello world\n");
+    read(fd_client, str, 256);
+	printf("Client said : %s", str);
+	close(fd_client);
+}
+
+void reading(server_t *server)
+{
+    for (int i = 0; i < FD_SETSIZE; i++)
+        if (FD_ISSET(i, &server->set[READING]) == true)
+            if (i == server->fd_server)
+                new_clients(server);
+            //else
+            //    old_clients(server);
+}
+
 void start_server(server_t *server)
 {
-	int fd_client = 0;
-	socklen_t len_cin = sizeof(server->inf);
-	char *str = malloc(256);
-
     init_server(server);
     while (1) {
         init_sets(server);
         if ((select(FD_SETSIZE, &server->set[READING], 
             &server->set[WRITING], NULL, NULL)) == -1)
             break;
-
-		if (FD_ISSET(server->fd_server, &server->set[READING])) {
-	        fd_client = accept(server->fd_server, (struct sockaddr*)&server->inf, &len_cin);
-	        dprintf(fd_client, "Hello world\n");
-            read(fd_client, str, 256);
-			printf("Client said : %s", str);
-	        close(fd_client);
-        }
-
+        reading(server);
+        //writing(server);
     }
 }
