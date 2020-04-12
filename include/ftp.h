@@ -29,6 +29,13 @@
 #define READING 0
 #define WRITING 1
 
+typedef struct clients_s {
+
+    int fd_client;
+    int nb_client;
+
+}clients_t;
+
 typedef struct server_s {
 
     int port;
@@ -36,6 +43,7 @@ typedef struct server_s {
     struct sockaddr_in inf;
     int fd_server;
     fd_set set[2];
+    clients_t *clients;
 
 }server_t;
 

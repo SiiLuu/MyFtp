@@ -10,6 +10,7 @@
 int main(int ac, char **av)
 {
     server_t *server = malloc(sizeof(server_t));
+    server->clients = malloc(sizeof(clients_t));
 
     if (!strcmp(av[1], "-h") || !strcmp(av[1], "-help"))
         help();

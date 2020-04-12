@@ -34,31 +34,69 @@ void init_sets(server_t *server)
 {
     FD_ZERO(&server->set[READING]);
     FD_ZERO(&server->set[WRITING]);
-	FD_SET(server->fd_server, &server->set[READING]);
+    FD_SET(server->fd_server, &server->set[READING]);
 	FD_SET(server->fd_server, &server->set[WRITING]);
+    for (int i = 0; i < server->clients->nb_client; i++) {
+    	FD_SET(server->clients[i].fd_client, &server->set[READING]);
+        FD_SET(server->clients[i].fd_client, &server->set[WRITING]);
+    }
 }
 
 void new_clients(server_t *server)
 {
-    int fd_client = 0;
-    char *str = malloc(256);
 	socklen_t len_cin = sizeof(server->inf);
 
-    fd_client = accept(server->fd_server, (struct sockaddr*)&server->inf, &len_cin);
-	dprintf(fd_client, "Hello world\n");
-    read(fd_client, str, 256);
-	printf("Client said : %s", str);
-	close(fd_client);
+    server->clients[server->clients->nb_client].fd_client =
+        accept(server->fd_server, (struct sockaddr*)&server->inf, &len_cin);
+	dprintf(server->clients[server->clients->nb_client].fd_client,
+        "220 Connected.\r\n");
+	printf("New connection\r\n");
+    server->clients->nb_client++;
+}
+
+void remove_client(server_t *server, int client, int id)
+{
+    while (id + 1 < server->clients->nb_client) {
+        server->clients[id] = server->clients[id + 1];
+    }
+    FD_CLR(client, &server->set[WRITING]);
+    FD_CLR(client, &server->set[READING]);
+    close(client);
+    server->clients->nb_client--;
+}
+
+void old_clients(server_t *server, int client)
+{
+	char *str = NULL;
+
+    for (int i = 0; i < server->clients->nb_client; i++) {
+        if (server->clients[i].fd_client == client) {
+            str = malloc(256);
+            read(server->clients[i].fd_client, str, 256);
+            if (strcmp(str, "QUIT\r\n") == 0) {
+                dprintf(server->clients[i].fd_client, "221 Goodbye\r\n");
+                remove_client(server, server->clients[i].fd_client, i);
+            }
+            else {
+                dprintf(server->clients[i].fd_client, "TAMER\r\n");
+            }
+            free(str);
+        }
+    }
 }
 
 void reading(server_t *server)
 {
-    for (int i = 0; i < FD_SETSIZE; i++)
-        if (FD_ISSET(i, &server->set[READING]) == true)
-            if (i == server->fd_server)
+    for (int i = 0; i < FD_SETSIZE; i++) {
+        if (FD_ISSET(i, &server->set[READING]) == true) {
+            if (i == server->fd_server) {
                 new_clients(server);
-            //else
-            //    old_clients(server);
+            }
+            else {
+                old_clients(server, i);
+            }
+        }
+    }
 }
 
 void start_server(server_t *server)

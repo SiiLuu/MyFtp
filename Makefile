@@ -19,14 +19,12 @@ all:	$(NAME)
 
 $(NAME):	$(OBJ)
 	gcc -o $(NAME) $(OBJ) $(CFLAGS)
-	gcc -o client client.c
 
 clean:
 	rm -rf $(OBJ)
 
 fclean:	clean
 	rm -rf $(NAME)
-	rm -rf client
 
 re:	fclean all
 
