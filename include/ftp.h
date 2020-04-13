@@ -37,6 +37,7 @@ typedef struct clients_s {
 
 typedef struct server_s {
 
+    char *command;
     int port;
     char *path;
     struct sockaddr_in inf;
@@ -47,10 +48,22 @@ typedef struct server_s {
 
 }server_t;
 
+typedef struct cmds_s {
+
+    char *command;
+    void (*ptr)(server_t *, int, int);
+
+}cmds_t;
+
 void help();
 void error_handling(int, char**);
 void init_server(server_t*);
 void init_sets(server_t *);
 void start_server(server_t*);
+void new_clients(server_t *);
+void remove_client(server_t *, int, int);
+void exec_commands(server_t *, int, int);
+void old_clients(server_t *, int);
+void reading(server_t *);
 
 #endif /* !FTP_H_ */

@@ -5,9 +5,11 @@
 ## Makefile
 ##
 
-SRC		=	src/main.c 			\
-			src/error.c			\
-			src/server.c		\
+SRC		=	src/main.c 				\
+			src/error.c				\
+			src/server.c			\
+			src/read_client.c		\
+			src/exec_commands.c 	\
 
 OBJ		=	$(SRC:.c=.o)
 
