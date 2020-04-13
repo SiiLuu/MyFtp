@@ -36,7 +36,7 @@ void init_sets(server_t *server)
     FD_ZERO(&server->set[WRITING]);
     FD_SET(server->fd_server, &server->set[READING]);
 	FD_SET(server->fd_server, &server->set[WRITING]);
-    for (int i = 0; i < server->clients->nb_client; i++) {
+    for (int i = 0; i < server->nb_client; i++) {
     	FD_SET(server->clients[i].fd_client, &server->set[READING]);
         FD_SET(server->clients[i].fd_client, &server->set[WRITING]);
     }
@@ -46,32 +46,35 @@ void new_clients(server_t *server)
 {
 	socklen_t len_cin = sizeof(server->inf);
 
-    server->clients[server->clients->nb_client].fd_client =
+    server->clients[server->nb_client].fd_client =
         accept(server->fd_server, (struct sockaddr*)&server->inf, &len_cin);
-	dprintf(server->clients[server->clients->nb_client].fd_client,
+	dprintf(server->clients[server->nb_client].fd_client,
         "220 Connected.\r\n");
 	printf("New connection\r\n");
-    server->clients->nb_client++;
+    server->nb_client++;  
 }
 
 void remove_client(server_t *server, int client, int id)
 {
-    while (id + 1 < server->clients->nb_client) {
+    printf("%d, %d\r\n", id, server->nb_client);
+    while (id + 1 < server->nb_client) {
         server->clients[id] = server->clients[id + 1];
+        id++;
     }
-    FD_CLR(client, &server->set[WRITING]);
-    FD_CLR(client, &server->set[READING]);
     close(client);
-    server->clients->nb_client--;
+    printf("Client : %d\r\n", server->nb_client);
+    server->nb_client--;
+    printf("Client : %d\r\n", server->nb_client);
+    printf("Client deconnected\r\n");
 }
 
 void old_clients(server_t *server, int client)
 {
-	char *str = NULL;
+	char *str = malloc(256);
 
-    for (int i = 0; i < server->clients->nb_client; i++) {
+    for (int i = 0; i < server->nb_client; i++) {
         if (server->clients[i].fd_client == client) {
-            str = malloc(256);
+            free(str);
             read(server->clients[i].fd_client, str, 256);
             if (strcmp(str, "QUIT\r\n") == 0) {
                 dprintf(server->clients[i].fd_client, "221 Goodbye\r\n");
@@ -80,7 +83,6 @@ void old_clients(server_t *server, int client)
             else {
                 dprintf(server->clients[i].fd_client, "TAMER\r\n");
             }
-            free(str);
         }
     }
 }
