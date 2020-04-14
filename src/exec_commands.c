@@ -105,18 +105,27 @@ void user_dele(server_t *server, int client, int id)
     char *buf = malloc(256);
     bool found = false;
     char *str = NULL;
-    char *file = malloc(256);
+    char *op = NULL;
+    int i = 0;
 
-    mydir = opendir(server->clients[id].real_path);
+    op = strdup(server->clients[id].real_path);
     str = strdup(server->command);
     str[strlen(str)-2] = 0;
+    strcat(op, "/");
+    strcat(op, (str + 5));
+    i = (strlen(rindex(op, '/')));
+    op[strlen(op) - i] = 0;
+    if (strlen(op) == 1)
+        str = (rindex(str, ' ') + 1);
+    else
+        str = (rindex(str, '/') + 1);
+    mydir = opendir(op);
     while ((myfile = readdir(mydir)) != NULL) {
         stat(buf, &mystat);
-        if (strcmp(myfile->d_name, (str + 5)) == 0) {
-            strcat(file, server->clients[id].real_path);
-            strcat(file, "/");
-            strcat(file, (str + 5));
-            remove(file);
+        if (strcmp(myfile->d_name, str) == 0) {
+            strcat(op, "/");
+            strcat(op, str);
+            remove(op);
             dprintf(client, "250 Requested file action okay, completed.\r\n");
             found = true;
             break;
@@ -124,16 +133,14 @@ void user_dele(server_t *server, int client, int id)
     }
     closedir(mydir);
     free(buf);
-    free(str);
-    free(file);
     (found == false) ? (command_not_found(server, client)) : (0);
 }
 
 bool advanced_cmds(server_t *server, int client, int id)
 {
     if (strncmp(server->command, "CWD ", 4) == 0) {
-            user_cwd(server, client, id);
-            return (true);
+        user_cwd(server, client, id);
+        return (true);
     } else if (strncmp(server->command, "DELE ", 5) == 0) {
         user_dele(server, client, id);
         return (true);
