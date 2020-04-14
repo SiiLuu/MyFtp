@@ -27,6 +27,7 @@ void remove_client(server_t *server, int client, int id)
         server->clients[id] = server->clients[id + 1];
         id++;
     }
+    dprintf(client, "221 Service closing control connection.\r\n");
     close(client);
     server->nb_client--;
     printf("Client disconnected\r\n");
@@ -43,16 +44,19 @@ void old_clients(server_t *server, int client)
     }
 }
 
+void manage(server_t *server, int i)
+{
+    if (i == server->fd_server)
+        new_clients(server);
+    else
+        old_clients(server, i);
+}
+
 void reading(server_t *server)
 {
     for (int i = 0; i < FD_SETSIZE; i++) {
         if (FD_ISSET(i, &server->set[READING]) == true) {
-            if (i == server->fd_server) {
-                new_clients(server);
-            }
-            else {
-                old_clients(server, i);
-            }
+            manage(server, i);
         }
     }
 }

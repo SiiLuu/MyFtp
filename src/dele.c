@@ -38,17 +38,19 @@ void user_dele(server_t *server, int client, int id)
     char *str = NULL;
     char *op = NULL;
 
-    op = strdup(server->clients[id].real_path);
-    str = strdup(server->command);
-    str[strlen(str)-2] = 0;
-    strcat(op, "/");
-    strcat(op, (str + 5));
-    op[strlen(op) - (strlen(rindex(op, '/')))] = 0;
-    if (strchr(str, '/') == NULL)
-        str = (rindex(str, ' ') + 1);
-    else
-        str = (rindex(str, '/') + 1);
-    if (check_file(client, str, op) == true)
-        found = true;
-    (found == false) ? (command_not_found(server, client)) : (0);
+    if (server->clients[id].log == true && server->clients[id].pass == true) {
+        op = strdup(server->clients[id].real_path);
+        str = strdup(server->command);
+        str[strlen(str)-2] = 0;
+        strcat(op, "/");
+        strcat(op, (str + 5));
+        op[strlen(op) - (strlen(rindex(op, '/')))] = 0;
+        if (strchr(str, '/') == NULL)
+            str = (rindex(str, ' ') + 1);
+        else
+            str = (rindex(str, '/') + 1);
+        if (check_file(client, str, op) == true)
+            found = true;
+    }
+    (found == false) ? (command_not_found(server, client, id)) : (0);
 }

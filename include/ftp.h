@@ -35,6 +35,8 @@ typedef struct clients_s {
     int fd_client;
     char *real_path;
     char *path;
+    bool log;
+    bool pass;
 
 }clients_t;
 
@@ -68,7 +70,7 @@ void remove_client(server_t *, int, int);
 void exec_commands(server_t *, int, int);
 void old_clients(server_t *, int);
 void reading(server_t *);
-void command_not_found(server_t *, int);
+void command_not_found(server_t *, int, int);
 void user_login(server_t *, int, int);
 void user_pass(server_t *, int, int);
 void user_pwd(server_t *, int, int);

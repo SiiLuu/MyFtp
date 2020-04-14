@@ -7,10 +7,15 @@
 
 #include "ftp.h"
 
-void command_not_found(server_t *server, int client)
+void command_not_found(server_t *server, int client, int id)
 {
-    (void)server;
-    dprintf(client, "500 Syntax error, command unrecognized.\r\n");
+    if (strncmp(server->command, "USER ", 5) == 0)
+        dprintf(client, "331 bad user.\r\n");
+    else if (server->clients[id].log == true &&
+        server->clients[id].pass == true)
+        dprintf(client, "500 Syntax error, command unrecognized.\r\n");
+    else
+        dprintf(client, "530 not logged in.\r\n");
 }
 
 bool advanced_cmds(server_t *server, int client, int id)
@@ -38,12 +43,10 @@ void exec_commands(server_t *server, int client, int id)
             ptr_command[i].ptr(server, client, id);
             found = true;
             break;
-        }
-        if (advanced_cmds(server, client, id) == true) {
+        } else if (advanced_cmds(server, client, id) == true) {
             found = true;
             break;
         }
     }
-    if (found == false)
-        command_not_found(server, client);
+    (found == false) ? command_not_found(server, client, id) : (0);
 }
