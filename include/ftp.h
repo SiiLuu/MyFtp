@@ -24,6 +24,7 @@
 #include <errno.h>
 #include <sys/time.h>
 #include <sys/types.h>
+#include <dirent.h>
 
 #define MAX_CLIENT 10
 #define READING 0
