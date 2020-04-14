@@ -7,11 +7,11 @@
 
 #include "ftp.h"
 
-void help()
+void help(void)
 {
     puts("USAGE: ./myftp port path");
-    puts("       port  is the port number on wich the server socket listens");
-    puts("       path  is the path to the home directory for the Anonymous user");
+    puts("\t\tport is the port number on wich the server socket listens");
+    puts("\t\tpath is the path to the home directory for the Anonymous user");
     exit(0);
 }
 

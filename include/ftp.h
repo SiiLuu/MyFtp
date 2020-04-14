@@ -58,11 +58,11 @@ typedef struct cmds_s {
 
 }cmds_t;
 
-void help();
-void error_handling(int, char**);
-void init_server(server_t*);
+void help(void);
+void error_handling(int, char **);
+void init_server(server_t *);
 void init_sets(server_t *);
-void start_server(server_t*);
+void start_server(server_t *);
 void new_clients(server_t *);
 void remove_client(server_t *, int, int);
 void exec_commands(server_t *, int, int);

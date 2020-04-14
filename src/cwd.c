@@ -47,7 +47,7 @@ void user_cwd(server_t *server, int client, int id)
         if (strncmp(myfile->d_name,
             (server->command + 4), strlen(myfile->d_name)) == 0) {
             dprintf(client, "250 Requested file action okay, completed.\r\n");
-            format(server, id, myfile);            
+            format(server, id, myfile);
             found = true;
             break;
         }
