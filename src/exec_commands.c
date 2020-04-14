@@ -36,7 +36,13 @@ void user_cdup(server_t *server, int client, int id)
 {
     int i = (strlen(rindex(server->clients[id].path, '/')) - 1);
     server->clients[id].path[strlen(server->clients[id].path) - i] = 0;
-    server->clients[id].real_path[strlen(server->clients[id].path) - i] = 0;
+    server->clients[id].real_path[strlen(
+        server->clients[id].real_path) - i] = 0;
+    if (strlen(server->clients[id].path) != 1) {
+        server->clients[id].path[strlen(server->clients[id].path) - 1] = 0;
+        server->clients[id].real_path[strlen(
+            server->clients[id].real_path) - 1] = 0;
+    }
     dprintf(client, "200 Command okay.\r\n");
 }
 
@@ -93,16 +99,33 @@ void user_cwd(server_t *server, int client, int id)
 void user_dele(server_t *server, int client, int id)
 {
     (void)id;
+    DIR *mydir;
+    struct dirent *myfile;
+    struct stat mystat;
+    char *buf = malloc(256);
     bool found = false;
     char *str = NULL;
+    char *file = malloc(256);
 
+    mydir = opendir(server->clients[id].real_path);
     str = strdup(server->command);
     str[strlen(str)-2] = 0;
-    if (remove((str + 5)) == 0) {
-        dprintf(client, "250 Requested file action okay, completed.\r\n");
-        found = true;
+    while ((myfile = readdir(mydir)) != NULL) {
+        stat(buf, &mystat);
+        if (strcmp(myfile->d_name, (str + 5)) == 0) {
+            strcat(file, server->clients[id].real_path);
+            strcat(file, "/");
+            strcat(file, (str + 5));
+            remove(file);
+            dprintf(client, "250 Requested file action okay, completed.\r\n");
+            found = true;
+            break;
+        }
     }
+    closedir(mydir);
+    free(buf);
     free(str);
+    free(file);
     (found == false) ? (command_not_found(server, client)) : (0);
 }
 
