@@ -33,8 +33,8 @@
 typedef struct clients_s {
 
     int fd_client;
+    char *real_path;
     char *path;
-    char *parent_path;
 
 }clients_t;
 

@@ -13,8 +13,8 @@ void new_clients(server_t *server)
 
     server->clients[server->nb_client].fd_client =
         accept(server->fd_server, (struct sockaddr*)&server->inf, &len_cin);
-    server->clients[server->nb_client].path = strdup(server->path);
-    server->clients[server->nb_client].parent_path = strdup(server->path);
+    server->clients[server->nb_client].real_path = strdup(server->path);
+    server->clients[server->nb_client].path = strdup("/");
 	dprintf(server->clients[server->nb_client].fd_client,
         "220 Service ready for new user\r\n");
 	printf("New connection\r\n");

@@ -34,7 +34,9 @@ void user_pwd(server_t *server, int client, int id)
 
 void user_cdup(server_t *server, int client, int id)
 {
-    server->clients[id].path = strdup(server->clients[id].parent_path);
+    int i = (strlen(rindex(server->clients[id].path, '/')) - 1);
+    server->clients[id].path[strlen(server->clients[id].path) - i] = 0;
+    server->clients[id].real_path[strlen(server->clients[id].path) - i] = 0;
     dprintf(client, "200 Command okay.\r\n");
 }
 
@@ -52,10 +54,16 @@ void user_noop(server_t *server, int client, int id)
     dprintf(client, "200 Command okay.\r\n");
 }
 
-void format(char *str)
+void format(server_t *server, int id, struct dirent *myfile)
 {
-    if (strcmp((str + (strlen(str) - 1)), "/") != 0)
-        strcat(str, "/");    
+    if (strcmp((server->clients[id].real_path +
+        (strlen(server->clients[id].real_path) - 1)), "/") != 0)
+        strcat(server->clients[id].real_path, "/");
+    if (strcmp((server->clients[id].path +
+        (strlen(server->clients[id].path) - 1)), "/") != 0)
+        strcat(server->clients[id].path, "/");
+    strcat(server->clients[id].real_path, myfile->d_name);
+    strcat(server->clients[id].path, myfile->d_name);
 }
 
 void user_cwd(server_t *server, int client, int id)
@@ -63,23 +71,51 @@ void user_cwd(server_t *server, int client, int id)
     DIR *mydir;
     struct dirent *myfile;
     struct stat mystat;
-    char buf[256];
+    char *buf = malloc(256);
     bool found = false;
 
-    mydir = opendir(server->clients[id].path);
+    mydir = opendir(server->clients[id].real_path);
     while ((myfile = readdir(mydir)) != NULL) {
         stat(buf, &mystat);
         if (strncmp(myfile->d_name,
             (server->command + 4), strlen(myfile->d_name)) == 0) {
             dprintf(client, "250 Requested file action okay, completed.\r\n");
-            format(server->clients[id].path);
-            strcat(server->clients[id].path, myfile->d_name);
+            format(server, id, myfile);            
             found = true;
             break;
         }
     }
     closedir(mydir);
+    free(buf);
     (found == false) ? (command_not_found(server, client)) : (0);
+}
+
+void user_dele(server_t *server, int client, int id)
+{
+    (void)id;
+    bool found = false;
+    char *str = NULL;
+
+    str = strdup(server->command);
+    str[strlen(str)-2] = 0;
+    if (remove((str + 5)) == 0) {
+        dprintf(client, "250 Requested file action okay, completed.\r\n");
+        found = true;
+    }
+    free(str);
+    (found == false) ? (command_not_found(server, client)) : (0);
+}
+
+bool advanced_cmds(server_t *server, int client, int id)
+{
+    if (strncmp(server->command, "CWD ", 4) == 0) {
+            user_cwd(server, client, id);
+            return (true);
+    } else if (strncmp(server->command, "DELE ", 5) == 0) {
+        user_dele(server, client, id);
+        return (true);
+    }
+    return (false);
 }
 
 void exec_commands(server_t *server, int client, int id)
@@ -95,8 +131,8 @@ void exec_commands(server_t *server, int client, int id)
             ptr_command[i].ptr(server, client, id);
             found = true;
             break;
-        } else if (strncmp(server->command, "CWD ", 4) == 0) {
-            user_cwd(server, client, id);
+        }
+        if (advanced_cmds(server, client, id) == true) {
             found = true;
             break;
         }
