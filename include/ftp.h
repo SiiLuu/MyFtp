@@ -68,5 +68,14 @@ void remove_client(server_t *, int, int);
 void exec_commands(server_t *, int, int);
 void old_clients(server_t *, int);
 void reading(server_t *);
+void command_not_found(server_t *, int);
+void user_login(server_t *, int, int);
+void user_pass(server_t *, int, int);
+void user_pwd(server_t *, int, int);
+void user_cdup(server_t *, int, int);
+void user_pasv(server_t *, int, int);
+void user_noop(server_t *, int, int);
+void user_cwd(server_t *, int, int);
+void user_dele(server_t *, int, int);
 
 #endif /* !FTP_H_ */
