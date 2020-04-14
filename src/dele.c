@@ -26,7 +26,7 @@ void user_dele(server_t *server, int client, int id)
     strcat(op, (str + 5));
     i = (strlen(rindex(op, '/')));
     op[strlen(op) - i] = 0;
-    if (strlen(op) == 1)
+    if (strchr(str, '/') == NULL)
         str = (rindex(str, ' ') + 1);
     else
         str = (rindex(str, '/') + 1);
