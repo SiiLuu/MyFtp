@@ -46,6 +46,7 @@ void user_help(server_t *server, int client, int id)
 void exec_commands(server_t *server, int client, int id)
 {
     bool found = false;
+
     cmds_t ptr_command[8] = {{"QUIT\r\n", remove_client},
         {"USER Anonymous\r\n", user_login}, {"PASS \r\n", user_pass},
         {"PWD\r\n", user_pwd}, {"CDUP\r\n", user_cdup},
@@ -57,10 +58,10 @@ void exec_commands(server_t *server, int client, int id)
             ptr_command[i].ptr(server, client, id);
             found = true;
             break;
-        } else if (advanced_cmds(server, client, id) == true) {
-            found = true;
-            break;
-        }
+        }// else if (advanced_cmds(server, client, id) == true) {
+         //   found = true;
+         //   break;
+        //}
     }
     (found == false) ? command_not_found(server, client, id) : (0);
 }

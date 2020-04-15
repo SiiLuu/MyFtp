@@ -10,7 +10,7 @@
 int main(int ac, char **av)
 {
     server_t *server = malloc(sizeof(server_t));
-    server->clients = malloc(sizeof(clients_t));
+    server->clients = malloc(100 * sizeof(clients_t));
 
     if (!strcmp(av[1], "-h") || !strcmp(av[1], "-help"))
         help();
@@ -18,5 +18,7 @@ int main(int ac, char **av)
     server->port = atoi(av[1]);
     server->path = av[2];
     start_server(server);
+    free(server);
+    free(server->clients);
     return (0);
 }
