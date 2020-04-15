@@ -41,13 +41,13 @@ void user_help(server_t *server, int client, int id)
 void exec_commands(server_t *server, int client, int id)
 {
     bool found = false;
-    cmds_t ptr_command[7] = {{"QUIT\r\n", remove_client},
+    cmds_t ptr_command[8] = {{"QUIT\r\n", remove_client},
         {"USER Anonymous\r\n", user_login}, {"PASS \r\n", user_pass},
         {"PWD\r\n", user_pwd}, {"CDUP\r\n", user_cdup},
         {"PASV\r\n", user_pasv}, {"NOOP\r\n", user_noop},
         {"HELP\r\n", user_help}};
 
-    for (int i = 0; i < 7; i++) {
+    for (int i = 0; i < 8; i++) {
         if (strcmp(ptr_command[i].command, server->command) == 0) {
             ptr_command[i].ptr(server, client, id);
             found = true;

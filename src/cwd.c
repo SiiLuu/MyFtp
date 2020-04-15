@@ -9,8 +9,10 @@
 
 void user_cdup(server_t *server, int client, int id)
 {
+    int i = 0;
+
     if (server->clients[id].log == true && server->clients[id].pass == true) {
-        int i = (strlen(rindex(server->clients[id].path, '/')) - 1);
+        i = (strlen(rindex(server->clients[id].path, '/')) - 1);
         server->clients[id].path[strlen(server->clients[id].path) - i] = 0;
         server->clients[id].real_path[strlen(
             server->clients[id].real_path) - i] = 0;
@@ -26,41 +28,51 @@ void user_cdup(server_t *server, int client, int id)
     }
 }
 
-void format(server_t *server, int id, struct dirent *myfile)
+void check_cwd(server_t *server, int id, char *str, int i)
 {
-    if (strcmp((server->clients[id].real_path +
-        (strlen(server->clients[id].real_path) - 1)), "/") != 0)
-        strcat(server->clients[id].real_path, "/");
-    if (strcmp((server->clients[id].path +
-        (strlen(server->clients[id].path) - 1)), "/") != 0)
-        strcat(server->clients[id].path, "/");
-    strcat(server->clients[id].real_path, myfile->d_name);
-    strcat(server->clients[id].path, myfile->d_name);
+    if (strcmp((str + 4), "..") != 0) {
+        if (strcmp((server->clients[id].real_path +
+            (strlen(server->clients[id].real_path) - 1)), "/") != 0)
+            strcat(server->clients[id].real_path, "/");
+        if (strcmp((server->clients[id].path +
+            (strlen(server->clients[id].path) - 1)), "/") != 0)
+            strcat(server->clients[id].path, "/");
+        strcat(server->clients[id].path, (str + 4));
+        strcat(server->clients[id].real_path, (str + 4));
+    } else {
+        i = (strlen(rindex(server->clients[id].path, '/')) - 1);
+        server->clients[id].path[strlen(server->clients[id].path) - i] = 0;
+        server->clients[id].real_path[strlen(
+            server->clients[id].real_path) - i] = 0;
+        if (strlen(server->clients[id].path) != 1) {
+            server->clients[id].path[strlen(server->clients[id].path) - 1] = 0;
+            server->clients[id].real_path[strlen(
+                server->clients[id].real_path) - 1] = 0;
+        }
+    }
 }
 
 void user_cwd(server_t *server, int client, int id)
 {
     DIR *mydir;
-    struct dirent *myfile;
-    struct stat mystat;
-    char *buf = malloc(256);
     bool found = false;
+    char *str = NULL;
+    char *op = NULL;
+    int i = 0;
 
     if (server->clients[id].log == true && server->clients[id].pass == true) {
-        mydir = opendir(server->clients[id].real_path);
-        while ((myfile = readdir(mydir)) != NULL) {
-            stat(buf, &mystat);
-            if (strncmp(myfile->d_name,
-                (server->command + 4), strlen(myfile->d_name)) == 0) {
-                dprintf(client,
-                    "250 Requested file action okay, completed.\r\n");
-                format(server, id, myfile);
-                found = true;
-                break;
-            }
-        }
+        op = strdup(server->clients[id].real_path);
+        str = strdup(server->command);
+        str[strlen(str)-2] = 0;
+        strcat(op, "/");
+        strcat(op, (str + 4));
+        if ((mydir = opendir(op)) != NULL) {
+            dprintf(client,
+                "250 Requested file action okay, completed.\r\n");
+            check_cwd(server, id, str, i);
+            found = true;
+        } 
         closedir(mydir);
-        free(buf);
     }
     (found == false) ? (command_not_found(server, client, id)) : (0);
 }
