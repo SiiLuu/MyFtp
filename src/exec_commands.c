@@ -26,6 +26,9 @@ bool advanced_cmds(server_t *server, int client, int id)
     } else if (strncmp(server->command, "DELE ", 5) == 0) {
         user_dele(server, client, id);
         return (true);
+    } else if (strncmp(server->command, "LIST", 4) == 0) {
+        user_list(server, client, id);
+        return (true);
     }
     return (false);
 }

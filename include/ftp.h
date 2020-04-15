@@ -79,5 +79,6 @@ void user_pasv(server_t *, int, int);
 void user_noop(server_t *, int, int);
 void user_cwd(server_t *, int, int);
 void user_dele(server_t *, int, int);
+void user_list(server_t *, int, int);
 
 #endif /* !FTP_H_ */

@@ -13,6 +13,7 @@ SRC		=	src/main.c 				\
 			src/cwd.c	 			\
 			src/dele.c 				\
 			src/commands.c 			\
+			src/list.c				\
 
 OBJ		=	$(SRC:.c=.o)
 
