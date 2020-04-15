@@ -7,29 +7,16 @@
 
 #include "ftp.h"
 
-bool check_file(int client, char *str, char *op)
+bool check_file(int client, char *str)
 {
-    DIR *mydir;
-    struct dirent *myfile;
-    struct stat mystat;
-    char *buf = malloc(256);
+    FILE *fp;
 
-    mydir = opendir(op);
-    while ((myfile = readdir(mydir)) != NULL) {
-        stat(buf, &mystat);
-        if (strcmp(myfile->d_name, str) == 0) {
-            strcat(op, "/");
-            strcat(op, str);
-            remove(op);
-            dprintf(client, "250 Requested file action okay, completed.\r\n");
-            closedir(mydir);
-            free(buf);
-            return (true);
-        }
-    }
-    closedir(mydir);
-    free(buf);
-    return (false);
+    if ((fp = fopen(str, "r")) == NULL)
+        return (false);
+    if ((remove(str)) == -1)
+        return (false);
+    dprintf(client, "250 Requested file action okay, completed.\r\n");
+    return (true);
 }
 
 void user_dele(server_t *server, int client, int id)
@@ -44,12 +31,7 @@ void user_dele(server_t *server, int client, int id)
         str[strlen(str)-2] = 0;
         strcat(op, "/");
         strcat(op, (str + 5));
-        op[strlen(op) - (strlen(rindex(op, '/')))] = 0;
-        if (strchr(str, '/') == NULL)
-            str = (rindex(str, ' ') + 1);
-        else
-            str = (rindex(str, '/') + 1);
-        if (check_file(client, str, op) == true)
+        if (check_file(client, op) == true)
             found = true;
     }
     (found == false) ? (command_not_found(server, client, id)) : (0);
