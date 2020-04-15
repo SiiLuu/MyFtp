@@ -19,7 +19,7 @@ bool check_list(server_t *server, char *op, int id)
             "150 File status okay; about to open data connection.\r\n");
         while ((myfile = readdir(mydir)) != NULL) {
             stat(buf, &mystat);
-            dprintf(server->clients[id].fd_client,"%s\r\n", myfile->d_name);
+            dprintf(server->clients[id].fd_client, "%s\r\n", myfile->d_name);
         }
         return (true);
     }

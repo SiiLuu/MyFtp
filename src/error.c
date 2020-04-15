@@ -20,10 +20,12 @@ void error_handling(int ac, char **av)
     if (ac != 3) {
         perror("Arguments error");
         exit(84);
-    } else if (atoi(av[1]) == 0) {
+    }
+    if (atoi(av[1]) == 0) {
         perror("Port unknown");
         exit(84);
-    } else if (chdir(av[2]) != 0) {
+    }
+    if (chdir(av[2]) != 0) {
         perror("chdir");
         exit(84);
     }

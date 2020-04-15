@@ -23,10 +23,12 @@ bool advanced_cmds(server_t *server, int client, int id)
     if (strncmp(server->command, "CWD ", 4) == 0) {
         user_cwd(server, client, id);
         return (true);
-    } else if (strncmp(server->command, "DELE ", 5) == 0) {
+    }
+    if (strncmp(server->command, "DELE ", 5) == 0) {
         user_dele(server, client, id);
         return (true);
-    } else if (strncmp(server->command, "LIST", 4) == 0) {
+    }
+    if (strncmp(server->command, "LIST", 4) == 0) {
         user_list(server, client, id);
         return (true);
     }

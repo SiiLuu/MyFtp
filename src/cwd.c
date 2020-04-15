@@ -71,7 +71,7 @@ void user_cwd(server_t *server, int client, int id)
                 "250 Requested file action okay, completed.\r\n");
             check_cwd(server, id, str, i);
             found = true;
-        } 
+        }
         closedir(mydir);
     }
     (found == false) ? (command_not_found(server, client, id)) : (0);
