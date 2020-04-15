@@ -30,6 +30,12 @@
 #define READING 0
 #define WRITING 1
 
+typedef enum mode_transfert_s {
+    DISABLED,
+    PASSIVE,
+    ACTIVE
+}mode_transfert_t;
+
 typedef struct clients_s {
 
     int fd_client;
@@ -37,6 +43,7 @@ typedef struct clients_s {
     char *path;
     bool log;
     bool pass;
+    mode_transfert_t mod;
 
 }clients_t;
 
@@ -80,5 +87,9 @@ void user_noop(server_t *, int, int);
 void user_cwd(server_t *, int, int);
 void user_dele(server_t *, int, int);
 void user_list(server_t *, int, int);
+void user_help(server_t *, int, int);
+void user_stor(server_t *, int, int);
+void user_retr(server_t *, int, int);
+void user_port(server_t *, int, int);
 
 #endif /* !FTP_H_ */

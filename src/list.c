@@ -32,7 +32,8 @@ void user_list(server_t *server, int client, int id)
     char *str = NULL;
     char *op = NULL;
 
-    if (server->clients[id].log == true && server->clients[id].pass == true) {
+    if (server->clients[id].log == true && server->clients[id].pass == true &&
+        server->clients[id].mod != DISABLED) {
         op = strdup(server->clients[id].real_path);
         str = strdup(server->command);
         str[strlen(str)-2] = 0;

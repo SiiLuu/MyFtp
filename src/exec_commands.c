@@ -18,6 +18,19 @@ void command_not_found(server_t *server, int client, int id)
         dprintf(client, "530 not logged in.\r\n");
 }
 
+bool transfert_cmds(server_t *server, int client, int id)
+{
+    if (strncmp(server->command, "RETR ", 5) == 0) {
+        user_retr(server, client, id);
+        return (true);
+    }
+    if (strncmp(server->command, "STOR ", 5) == 0) {
+        user_stor(server, client, id);
+        return (true);
+    }
+    return (false);
+}
+
 bool advanced_cmds(server_t *server, int client, int id)
 {
     if (strncmp(server->command, "CWD ", 4) == 0) {
@@ -32,15 +45,13 @@ bool advanced_cmds(server_t *server, int client, int id)
         user_list(server, client, id);
         return (true);
     }
+    if (strncmp(server->command, "PORT ", 5) == 0) {
+        user_port(server, client, id);
+        return (true);
+    }
+    if (transfert_cmds(server, client, id) == true)
+        return (true);
     return (false);
-}
-
-void user_help(server_t *server, int client, int id)
-{
-    if (server->clients[id].log == true && server->clients[id].pass == true)
-        dprintf(client, "214 Help message.\r\n");
-    else
-        dprintf(client, "530 not logged in.\r\n");
 }
 
 void exec_commands(server_t *server, int client, int id)

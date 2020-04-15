@@ -17,6 +17,7 @@ void new_clients(server_t *server)
     server->clients[server->nb_client].path = strdup("/");
     server->clients[server->nb_client].log = false;
     server->clients[server->nb_client].pass = false;
+    server->clients[server->nb_client].mod = DISABLED;
     dprintf(server->clients[server->nb_client].fd_client,
         "220 Service ready for new user\r\n");
     printf("New connection\r\n");

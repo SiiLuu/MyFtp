@@ -14,6 +14,10 @@ SRC		=	src/main.c 				\
 			src/dele.c 				\
 			src/commands.c 			\
 			src/list.c				\
+			src/passive_mode.c 		\
+			src/active_mode.c 		\
+			src/downloading.c 		\
+			src/upload.c 			\
 
 OBJ		=	$(SRC:.c=.o)
 
