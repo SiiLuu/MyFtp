@@ -58,10 +58,10 @@ void exec_commands(server_t *server, int client, int id)
             ptr_command[i].ptr(server, client, id);
             found = true;
             break;
-        }// else if (advanced_cmds(server, client, id) == true) {
-         //   found = true;
-         //   break;
-        //}
+        } else if (advanced_cmds(server, client, id) == true) {
+            found = true;
+            break;
+        }
     }
     (found == false) ? command_not_found(server, client, id) : (0);
 }
