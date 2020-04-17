@@ -9,9 +9,9 @@
 
 bool check_file(int client, char *str)
 {
-    FILE *fp;
+    int filedesc = open(str, O_RDONLY);
 
-    if ((fp = fopen(str, "r")) == NULL)
+    if(filedesc < 0)
         return (false);
     if ((remove(str)) == -1)
         return (false);

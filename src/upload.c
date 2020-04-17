@@ -9,9 +9,9 @@
 
 bool check_path(int client, char *str)
 {
-    FILE *fp;
+    int filedesc = open(str, O_RDONLY);
 
-    if (((fp = fopen(str, "r")) == NULL))
+    if(filedesc < 0)
         return (false);
     dprintf(client,
         "150 File status okay; about to open data connection.\r\n");
