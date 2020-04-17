@@ -7,7 +7,7 @@
 
 #include "ftp.h"
 
-void check_list(server_t *server, char *op, int id)
+void check_list(int client, char *op)
 {
     DIR *mydir;
     struct dirent *myfile;
@@ -15,14 +15,15 @@ void check_list(server_t *server, char *op, int id)
     char *buf = malloc(256);
 
     if ((mydir = opendir(op)) != NULL) {
-        dprintf(server->clients[id].fd_client,
+        dprintf(client,
             "150 File status okay; about to open data connection.\r\n");
         while ((myfile = readdir(mydir)) != NULL) {
             stat(buf, &mystat);
-            dprintf(server->clients[id].fd_client, "%s\r\n", myfile->d_name);
+            dprintf(client, "%s\r\n", myfile->d_name);
         }
         return;
-    }
+    } else
+        dprintf(client, "550 file not found.\r\n");
 }
 
 void user_list(server_t *server, int client, int id)
@@ -37,7 +38,7 @@ void user_list(server_t *server, int client, int id)
             str[strlen(str)-2] = 0;
             strcat(op, "/");
             (strlen(str) != 4) ? strcat(op, (str + 5)) : (0);
-            check_list(server, op, id);
+            check_list(client, op);
         } else
             dprintf(client, "425 Use PORT or PASV first.\r\n");
     } else
