@@ -34,5 +34,6 @@ void user_dele(server_t *server, int client, int id)
         strcat(op, "/");
         strcat(op, (str + 5));
         check_file(client, op);
-    }
+    } else
+        dprintf(client, "530 not logged in.\r\n");
 }

@@ -55,7 +55,6 @@ void check_cwd(server_t *server, int id, char *str, int i)
 void user_cwd(server_t *server, int client, int id)
 {
     DIR *mydir;
-    bool found = false;
     char *str = NULL;
     char *op = NULL;
     int i = 0;
@@ -70,9 +69,9 @@ void user_cwd(server_t *server, int client, int id)
             dprintf(client,
                 "250 Requested file action okay, completed.\r\n");
             check_cwd(server, id, str, i);
-            found = true;
-        }
+        } else
+            dprintf(client, "550 file not found.\r\n");
         closedir(mydir);
-    }
-    (found == false) ? (command_not_found(server, client, id)) : (0);
+    } else
+        dprintf(client, "530 not logged in.\r\n");
 }

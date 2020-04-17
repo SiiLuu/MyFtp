@@ -36,5 +36,6 @@ void user_retr(server_t *server, int client, int id)
         else {
             dprintf(client, "425 Use PORT or PASV first.\r\n");
         }
-    }
+    } else
+        dprintf(client, "530 not logged in.\r\n");
 }
