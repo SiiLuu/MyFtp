@@ -39,6 +39,8 @@ void check_list(server_t *server, int client, int id, char *op)
         if (server->clients[id].mod == PASSIVE) {
             listing(client, sock, op);
             close(sock);
+            close(server->clients[id].dt_socket);
+            server->clients[id].mod = DISABLED;
         }
         return;
     } else
