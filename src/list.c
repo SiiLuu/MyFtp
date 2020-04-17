@@ -7,7 +7,7 @@
 
 #include "ftp.h"
 
-bool check_list(server_t *server, char *op, int id)
+void check_list(server_t *server, char *op, int id)
 {
     DIR *mydir;
     struct dirent *myfile;
@@ -21,27 +21,25 @@ bool check_list(server_t *server, char *op, int id)
             stat(buf, &mystat);
             dprintf(server->clients[id].fd_client, "%s\r\n", myfile->d_name);
         }
-        return (true);
+        return;
     }
-    return (false);
 }
 
 void user_list(server_t *server, int client, int id)
 {
-    bool found = false;
     char *str = NULL;
     char *op = NULL;
 
-    if (server->clients[id].log == true && server->clients[id].pass == true &&
-        server->clients[id].mod != DISABLED) {
-        op = strdup(server->clients[id].real_path);
-        str = strdup(server->command);
-        str[strlen(str)-2] = 0;
-        strcat(op, "/");
-        if (strlen(str) != 4)
-            strcat(op, (str + 5));
-        if (check_list(server, op, id) == true)
-            found = true;
-    }
-    (found == false) ? (command_not_found(server, client, id)) : (0);
+    if (server->clients[id].log == true && server->clients[id].pass == true) {
+        if (server->clients[id].mod != DISABLED) {
+            op = strdup(server->clients[id].real_path);
+            str = strdup(server->command);
+            str[strlen(str)-2] = 0;
+            strcat(op, "/");
+            (strlen(str) != 4) ? strcat(op, (str + 5)) : (0);
+            check_list(server, op, id);
+        } else
+            dprintf(client, "425 Use PORT or PASV first.\r\n");
+    } else
+        dprintf(client, "530 not logged in.\r\n");
 }
