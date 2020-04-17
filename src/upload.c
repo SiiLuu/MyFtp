@@ -7,16 +7,38 @@
 
 #include "ftp.h"
 
-void check_path(int client, char *str)
+void upload(server_t *server, int id, int sock, char *op)
 {
-    int filedesc = open(str, O_RDONLY);
+    FILE *f = NULL;
+    int pid = 0;
+    char buf[2] = {0};
 
-    if (filedesc < 0) {
-        dprintf(client, "500 Syntax error.\r\n");
-        return;
+    chdir(server->clients[id].real_path);
+    f = fopen(op, "w+");
+    if ((pid = fork()) == 0) {
+        while ((read(sock, buf, 1))) {
+            buf[1] = '\0';
+            fwrite(buf, 1, 1, f);
+        }
+        dprintf(server->clients[id].fd_client, "226 Done.\r\n");
+        fclose(f);
+        exit(0);
     }
+}
+
+void check_path(server_t *server, int id, int client, char *op)
+{
+    struct sockaddr_in inf;
+    socklen_t len = sizeof(inf);
+    int sock = accept(server->clients[id].dt_socket,
+        (struct sockaddr *)&inf, &len);
+
     dprintf(client,
         "150 File status okay; about to open data connection.\r\n");
+    upload(server, id, sock, op);
+    close(sock);
+    close(server->clients[id].dt_socket);
+    server->clients[id].mod = DISABLED;
 }
 
 void user_stor(server_t *server, int client, int id)
@@ -31,7 +53,7 @@ void user_stor(server_t *server, int client, int id)
         str[strlen(str) - 2] = 0;
         strcat(op, "/");
         strcat(op, (str + 5));
-        check_path(client, op);
+        check_path(server, id, client, op);
     } else
         dprintf(client, "530 not logged in.\r\n");
 }
