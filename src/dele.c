@@ -7,21 +7,23 @@
 
 #include "ftp.h"
 
-bool check_file(int client, char *str)
+void check_file(int client, char *str)
 {
     int filedesc = open(str, O_RDONLY);
 
-    if(filedesc < 0)
-        return (false);
-    if ((remove(str)) == -1)
-        return (false);
+    if(filedesc < 0) {
+        dprintf(client, "550 file not found.\r\n");
+        return;
+    }
+    if ((remove(str)) == -1) {
+        dprintf(client, "550 file not found.\r\n");
+        return;
+    }
     dprintf(client, "250 Requested file action okay, completed.\r\n");
-    return (true);
 }
 
 void user_dele(server_t *server, int client, int id)
 {
-    bool found = false;
     char *str = NULL;
     char *op = NULL;
 
@@ -31,8 +33,6 @@ void user_dele(server_t *server, int client, int id)
         str[strlen(str)-2] = 0;
         strcat(op, "/");
         strcat(op, (str + 5));
-        if (check_file(client, op) == true)
-            found = true;
+        check_file(client, op);
     }
-    (found == false) ? (command_not_found(server, client, id)) : (0);
 }

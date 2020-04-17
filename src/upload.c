@@ -7,20 +7,20 @@
 
 #include "ftp.h"
 
-bool check_path(int client, char *str)
+void check_path(int client, char *str)
 {
     int filedesc = open(str, O_RDONLY);
 
-    if(filedesc < 0)
-        return (false);
+    if(filedesc < 0) {
+        dprintf(client, "500 Syntax error.\r\n");
+        return;
+    }
     dprintf(client,
         "150 File status okay; about to open data connection.\r\n");
-    return (true);
 }
 
 void user_stor(server_t *server, int client, int id)
 {
-    bool found = false;
     char *str = NULL;
     char *op = NULL;
 
@@ -31,8 +31,6 @@ void user_stor(server_t *server, int client, int id)
         str[strlen(str) - 2] = 0;
         strcat(op, "/");
         strcat(op, (str + 5));
-        if (check_path(client, op) == true)
-            found = true;
+        check_path(client, op);
     }
-    (found == false) ? (command_not_found(server, client, id)) : (0);
 }
