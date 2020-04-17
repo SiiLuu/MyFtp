@@ -44,6 +44,8 @@ typedef struct clients_s {
     bool log;
     bool pass;
     mode_transfert_t mod;
+    int dt_socket;
+    int dt_port;
 
 }clients_t;
 

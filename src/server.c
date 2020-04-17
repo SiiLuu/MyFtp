@@ -16,17 +16,14 @@ void init_server(server_t *server)
         perror("Socket failed");
         exit(84);
     }
-    if (setsockopt(server->fd_server, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT,
-        &option, sizeof(int))) {
-        perror("Setsockopt");
-        exit(84);
-    }
+    setsockopt(server->fd_server, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT,
+        &option, sizeof(int));
     server->inf.sin_addr.s_addr = htonl(INADDR_ANY);
     server->inf.sin_port = htons(server->port);
     server->inf.sin_family = AF_INET;
-    if (bind(server->fd_server, (struct sockaddr *)&server->inf, len) < 0)
+    if (bind(server->fd_server, (struct sockaddr *)&server->inf, len) == -1)
         exit(84);
-    if (listen(server->fd_server, MAX_CLIENT) < 0)
+    if (listen(server->fd_server, MAX_CLIENT) == -1)
         exit(84);
 }
 

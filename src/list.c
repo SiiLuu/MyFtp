@@ -7,19 +7,38 @@
 
 #include "ftp.h"
 
-void check_list(int client, char *op)
+void listing(int client, int sock, char *op)
+{
+    int pid = 0;
+    char *command = calloc(0, sizeof(256));
+    int temp = 0;
+
+    if ((pid = fork()) == 0) {
+        command = strcat(command, "ls -l ");
+        op ? command = strcat(command, op) : (0);
+        temp = dup(1);
+        dup2(sock, 1);
+        system(command);
+        dup2(temp, 1);
+        dprintf(client, "226 Done.\r\n");
+        exit(0);
+    }
+}
+
+void check_list(server_t *server, int client, int id, char *op)
 {
     DIR *mydir;
-    struct dirent *myfile;
-    struct stat mystat;
-    char *buf = malloc(256);
+    struct sockaddr_in inf;
+    socklen_t len = sizeof(inf);
+    int sock = accept(server->clients[id].dt_socket,
+        (struct sockaddr *)&inf, &len);
 
     if ((mydir = opendir(op)) != NULL) {
         dprintf(client,
             "150 File status okay; about to open data connection.\r\n");
-        while ((myfile = readdir(mydir)) != NULL) {
-            stat(buf, &mystat);
-            dprintf(client, "%s\r\n", myfile->d_name);
+        if (server->clients[id].mod == PASSIVE) {
+            listing(client, sock, op);
+            close(sock);
         }
         return;
     } else
@@ -38,7 +57,7 @@ void user_list(server_t *server, int client, int id)
             str[strlen(str)-2] = 0;
             strcat(op, "/");
             (strlen(str) != 4) ? strcat(op, (str + 5)) : (0);
-            check_list(client, op);
+            check_list(server, client, id, op);
         } else
             dprintf(client, "425 Use PORT or PASV first.\r\n");
     } else
