@@ -11,7 +11,7 @@ void check_file(int client, char *str)
 {
     int filedesc = open(str, O_RDONLY);
 
-    if(filedesc < 0) {
+    if (filedesc < 0) {
         dprintf(client, "550 file not found.\r\n");
         return;
     }

@@ -11,7 +11,7 @@ void check_path(int client, char *str)
 {
     int filedesc = open(str, O_RDONLY);
 
-    if(filedesc < 0) {
+    if (filedesc < 0) {
         dprintf(client, "500 Syntax error.\r\n");
         return;
     }
