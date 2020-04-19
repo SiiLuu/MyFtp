@@ -30,13 +30,14 @@ void check_list(server_t *server, int client, int id, char *op)
     DIR *mydir;
     struct sockaddr_in inf;
     socklen_t len = sizeof(inf);
-    int sock = accept(server->clients[id].dt_socket,
-        (struct sockaddr *)&inf, &len);
+    int sock = 0;
 
     if ((mydir = opendir(op)) != NULL) {
         dprintf(client,
             "150 File status okay; about to open data connection.\r\n");
         if (server->clients[id].mod == PASSIVE) {
+            sock = accept(server->clients[id].dt_socket,
+                (struct sockaddr *)&inf, &len);
             listing(client, sock, op);
             close(sock);
             close(server->clients[id].dt_socket);

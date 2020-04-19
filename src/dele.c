@@ -28,6 +28,11 @@ void user_dele(server_t *server, int client, int id)
     char *op = NULL;
 
     if (server->clients[id].log == true && server->clients[id].pass == true) {
+        if (strlen(server->command) == 7 || strlen(server->command) == 6) {
+            dprintf(client,
+                "501 Syntax error in parameters or arguments.\r\n");
+            return;
+        }
         op = strdup(server->clients[id].real_path);
         str = strdup(server->command);
         str[strlen(str)-2] = 0;

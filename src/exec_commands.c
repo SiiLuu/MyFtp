@@ -20,7 +20,7 @@ void command_not_found(server_t *server, int client, int id)
 
 bool transfert_cmds(server_t *server, int client, int id)
 {
-    if (strncmp(server->command, "RETR ", 5) == 0) {
+    if (strncmp(server->command, "RETR", 4) == 0) {
         user_retr(server, client, id);
         return (true);
     }
@@ -33,11 +33,11 @@ bool transfert_cmds(server_t *server, int client, int id)
 
 bool advanced_cmds(server_t *server, int client, int id)
 {
-    if (strncmp(server->command, "CWD ", 4) == 0) {
+    if (strncmp(server->command, "CWD", 3) == 0) {
         user_cwd(server, client, id);
         return (true);
     }
-    if (strncmp(server->command, "DELE ", 5) == 0) {
+    if (strncmp(server->command, "DELE", 4) == 0) {
         user_dele(server, client, id);
         return (true);
     }

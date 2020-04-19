@@ -31,16 +31,21 @@ void check_path_file(server_t *server, int id, int client, char *op)
 {
     struct sockaddr_in inf;
     socklen_t len = sizeof(inf);
-    int sock = accept(server->clients[id].dt_socket,
-        (struct sockaddr *)&inf, &len);
+    int sock = 0;
     int filedesc = open(op, O_RDONLY);
 
+    if (strlen(server->command) == 7 || strlen(server->command) == 6) {
+        dprintf(client,
+            "501 Syntax error in parameters or arguments.\r\n");
+        return;
+    }
     if (filedesc < 0) {
         dprintf(client, "550 file not found.\r\n");
         return;
     }
-    dprintf(client,
-        "150 File status okay; about to open data connection.\r\n");
+    dprintf(client, "150 File status okay.\r\n");
+    sock = accept(server->clients[id].dt_socket,
+        (struct sockaddr *)&inf, &len);
     download(server, id, sock, filedesc);
     close(sock);
     close(server->clients[id].dt_socket);

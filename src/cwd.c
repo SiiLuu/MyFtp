@@ -52,26 +52,36 @@ void check_cwd(server_t *server, int id, char *str, int i)
     }
 }
 
-void user_cwd(server_t *server, int client, int id)
+void chek_file(server_t *server, int client, int id)
 {
     DIR *mydir;
     char *str = NULL;
     char *op = NULL;
     int i = 0;
 
+    op = strdup(server->clients[id].real_path);
+    str = strdup(server->command);
+    str[strlen(str)-2] = 0;
+    strcat(op, "/");
+    strcat(op, (str + 4));
+    if ((mydir = opendir(op)) != NULL) {
+        dprintf(client,
+            "250 Requested file action okay, completed.\r\n");
+        check_cwd(server, id, str, i);
+    } else
+        dprintf(server->clients[id].fd_client, "550 file not found.\r\n");
+    closedir(mydir);
+}
+
+void user_cwd(server_t *server, int client, int id)
+{
     if (server->clients[id].log == true && server->clients[id].pass == true) {
-        op = strdup(server->clients[id].real_path);
-        str = strdup(server->command);
-        str[strlen(str)-2] = 0;
-        strcat(op, "/");
-        strcat(op, (str + 4));
-        if ((mydir = opendir(op)) != NULL) {
+        if (strlen(server->command) == 6 || strlen(server->command) == 5) {
             dprintf(client,
-                "250 Requested file action okay, completed.\r\n");
-            check_cwd(server, id, str, i);
-        } else
-            dprintf(client, "550 file not found.\r\n");
-        closedir(mydir);
+                "501 Syntax error in parameters or arguments.\r\n");
+            return;
+        }
+        chek_file(server, client, id);
     } else
         dprintf(client, "530 not logged in.\r\n");
 }
